@@ -71,7 +71,9 @@ function schism (middleware, req, res) {
     }
   }
 
-  const hooks = { ctx }
+  const addMiddleware = mware => middleware.push(mware)
+
+  const hooks = { ctx, addMiddleware }
 
   const reduce = () => Promise.all(middleware.map(m => m(ctx))).then(_ => _.reduce(deepMerge, {}))
 
@@ -87,10 +89,14 @@ function schism (middleware, req, res) {
   return { hooks, reduce, use, bind, listen }
 }
 
-schism([
+let app = schism([
   require('./lib/bodyParser'),
   require('./lib/urlParser'),
   route.GET('/')(ctx => ctx.req.method),
   route.GET('/ping')(() => 'pong'),
   route.GET('/hello/:world')((ctx, params) => `Hello ${params.world}!`)
-]).listen()
+])
+
+app.hooks.addMiddleware(route.GET('/ping')(() => 'ping'))
+
+app.listen()
