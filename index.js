@@ -56,26 +56,23 @@ function createState () {
   }
 }
 
-function schism (middleware, req, res) {
-  if (!middleware) middleware = []
+module.exports = function schism (middleware, req, res) {
+  if (!middleware) middleware = [
+    require('./lib/urlParser'),
+    require('./lib/bodyParser')
+  ]
 
-  const ctx = {
-    state: createState(),
-
-    get req () {
-      return process.env.NODE_ENV !== 'test' ? req : undefined
-    },
-
-    get res () {
-      return process.env.NODE_ENV !== 'test' ? res : undefined
-    }
-  }
+  const ctx = { req, res, state: createState() }
 
   const addMiddleware = mware => middleware.push(mware)
 
-  const hooks = { ctx, addMiddleware }
+  const hooks = process.env.NODE_ENV !== 'production'
+    ? { ctx, addMiddleware }
+    : (() => { throw new Error('Cannot access hooks in production!') })
 
-  const reduce = () => Promise.all(middleware.map(m => m(ctx))).then(_ => _.reduce(deepMerge, {}))
+  const reduce = (init) =>
+    Promise.all(middleware.map(m => m(ctx)))
+      .then(_ => _.reduce(deepMerge, init || {}))
 
   const use = mware => schism(middleware.concat(mware))
 
@@ -88,15 +85,3 @@ function schism (middleware, req, res) {
 
   return { hooks, reduce, use, bind, listen }
 }
-
-let app = schism([
-  require('./lib/bodyParser'),
-  require('./lib/urlParser'),
-  route.GET('/')(ctx => ctx.req.method),
-  route.GET('/ping')(() => 'pong'),
-  route.GET('/hello/:world')((ctx, params) => `Hello ${params.world}!`)
-])
-
-app.hooks.addMiddleware(route.GET('/ping')(() => 'ping'))
-
-app.listen()
