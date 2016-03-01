@@ -91,5 +91,6 @@ schism([
   require('./lib/bodyParser'),
   require('./lib/urlParser'),
   route.GET('/')(ctx => ctx.req.method),
-  route.GET('/ping')(() => 'pong')
+  route.GET('/ping')(() => 'pong'),
+  route.GET('/hello/:world')((ctx, params) => `Hello ${params.world}!`)
 ]).listen()
