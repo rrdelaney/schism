@@ -1,9 +1,9 @@
 'use strict'
 
-let schism = require('./index')
+let soular = require('./index')
 let route = require('./lib/route')
 
-let app1 = schism([_ => ({ body: { version: 1 } } )])
+let app1 = soular([_ => ({ body li: { version: 1 } } )])
 
 
   // .use(route.GET('/')(ctx => ctx.req.method))

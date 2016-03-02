@@ -56,7 +56,7 @@ function createState () {
   }
 }
 
-module.exports = function schism (middleware, req, res) {
+module.exports = function soular (middleware, req, res) {
   if (!middleware) middleware = [
     require('./lib/urlParser'),
     require('./lib/bodyParser')

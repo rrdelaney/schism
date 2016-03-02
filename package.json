@@ -1,5 +1,5 @@
 {
-  "name": "schism",
+  "name": "soular",
   "version": "0.0.0",
   "description": "A next-gen web server",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rrdelaney/schism"
+    "url": "https://github.com/rrdelaney/soular"
   },
   "keywords": [
     "server"
@@ -16,9 +16,9 @@
   "author": "Ryan Delaney <rrdelaney@outlook.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rrdelaney/schism/issues"
+    "url": "https://github.com/rrdelaney/soular/issues"
   },
-  "homepage": "https://github.com/rrdelaney/schism",
+  "homepage": "https://github.com/rrdelaney/soular",
   "devDependencies": {
     "ava": "^0.12.0",
     "snazzy": "^3.0.0",
