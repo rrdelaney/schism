@@ -1,7 +1,5 @@
 'use strict'
 
-let route = require('./lib/route')
-
 function deepMerge (A, B) {
   if (typeof A !== 'object') return Object.assign({}, B, { body: A || B.body })
   if (typeof B !== 'object') return Object.assign({}, A, { body: B || A.body })
@@ -74,10 +72,10 @@ module.exports = function soular (middleware, req, res) {
     Promise.all(middleware.map(m => m(ctx)))
       .then(_ => _.reduce(deepMerge, init || {}))
 
-  const use = mware => schism(middleware.concat(mware))
+  const use = mware => soular(middleware.concat(mware))
 
   const bind = (_req, _res) =>
-    schism(middleware, _req, _res)
+    soular(middleware, _req, _res)
       .reduce()
       .then(mapToRes(_res))
 
