@@ -28,11 +28,11 @@ test('::use should also apply middleware', async t => {
 })
 
 test('app should default string to body', async t => {
-  const res = await soular([
+  const { body } = await soular([
      _ => 'body!!!'
   ]).reduce()
 
-  t.same(res, { body: 'body!!!'})
+  t.same(body, 'body!!!')
 })
 
 test('middleware should override in order', async t => {
@@ -46,12 +46,12 @@ test('middleware should override in order', async t => {
 })
 
 test('body should be replaced in order', async t => {
-  const res = await soular([
+  const { body } = await soular([
     _ => 'A!!!',
     _ => 'B!!!'
   ]).reduce()
 
-  t.same(res, { body: 'B!!!' })
+  t.is(body, 'B!!!')
 })
 
 test('app should wait for promises', async t => {
@@ -61,6 +61,19 @@ test('app should wait for promises', async t => {
   ]).reduce()
 
   t.same(res, { x: true, y: true })
+})
+
+test('middleware can be async functions', async t => {
+  const setBody = async () => {
+    let x = await delay(500)
+
+    return 'body!!!'
+  }
+
+  const { body } = await soular([setBody])
+    .reduce()
+
+  t.is(body, 'body!!!')
 })
 
 test('ctx.state should sync things', async t => {
@@ -119,4 +132,123 @@ test('::listen should provide an http server', t => {
     .get('/xyz')
     .expect(200)
     .expect('/xyz')
+})
+
+test('bodyParser should parse a plaintext body', t => {
+  const app = soular(soular.defaults)
+    .use(async ({ state }) => await state.get('body'))
+
+  return request(app.bind)
+    .post('/')
+    .send('this is plaintext')
+    .expect(200)
+    .expect('this is plaintext')
+})
+
+test('bodyParser should parse a JSON body', t => {
+  const app = soular(soular.defaults)
+    .use(async ({ state }) => ({ body: await state.get('body') }))
+
+  return request(app.bind)
+    .post('/')
+    .send({ x: true, y: true })
+    .expect(200)
+    .expect({ x: true, y: true })
+})
+
+test('urlParser should parse get params', t => {
+  const app = soular(soular.defaults)
+    .use(async ({ state }) => ({ body: await state.get('query') }))
+
+  return request(app.bind)
+    .get('/?x=x&y=y')
+    .expect(200)
+    .expect({ x: 'x', y: 'y' })
+})
+
+test('urlParser should parse path', t => {
+  const app = soular(soular.defaults)
+    .use(async ({ state }) => ({ body: await state.get('path') }))
+
+  return request(app.bind)
+    .get('/x/y/z?x=x&y=y')
+    .expect(200)
+    .expect('/x/y/z')
+})
+
+test('no body should 404', t => {
+  const app = soular()
+
+  return request(app.bind)
+    .get('/')
+    .expect(404)
+    .expect('Not Found')
+})
+
+test('hooks should not accessable in production', t => {
+  const app = soular()
+
+  t.throws(() => app.hooks('production'))
+})
+
+test('hooks.addMiddleware should add middleware mutably', t => {
+  const app = soular()
+
+  app.hooks().addMiddleware(_ => 'body!!!')
+
+  return request(app.bind)
+    .get('/')
+    .expect('body!!!')
+})
+
+test('router should allow on correct GET route', t => {
+  const app = soular(soular.defaults)
+    .use(soular.GET('/path')(_ => 'body!!!'))
+
+  return request(app.bind)
+    .get('/path')
+    .expect(200)
+    .expect('body!!!')
+})
+
+test('router should allow on correct POST route', t => {
+  const app = soular(soular.defaults)
+    .use(soular.POST('/path')(_ => 'body!!!'))
+
+  return request(app.bind)
+    .post('/path')
+    .expect(200)
+    .expect('body!!!')
+})
+
+test('router should 404 on unmatched route', t => {
+  const app = soular(soular.defaults)
+    .use(soular.GET('/path')(_ => 'body!!!'))
+
+  return request(app.bind)
+    .get('/nope')
+    .expect(404)
+})
+
+test('router should 404 on unmatched method', t => {
+  const app = soular(soular.defaults)
+    .use(soular.GET('/path')(_ => 'body!!!'))
+
+  return request(app.bind)
+    .post('/path')
+    .expect(404)
+})
+
+test('router should parse route variables', t => {
+  const app = soular(soular.defaults)
+    .use(soular.GET('/path/:id')(async ({ state }) => {
+      let { id } = await state.get('params')
+
+      return id
+    }))
+
+  return request(app.bind)
+    .get('/path/100')
+    .expect(200)
+    .expect('100')
 })

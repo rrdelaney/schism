@@ -1,7 +1,6 @@
 'use strict'
 
 function deepMerge (A, B) {
-  if (typeof A !== 'object') return Object.assign({}, B, { body: A || B.body })
   if (typeof B !== 'object') return Object.assign({}, A, { body: B || A.body })
 
   return Object.keys(B).reduce((prev, key) => {
@@ -16,9 +15,9 @@ function deepMerge (A, B) {
 function mapToRes (res) {
   return props => {
     let isJSON = typeof props.body === 'object'
-    let status = props.status || 200
     let headers = res.headers || { 'Content-Type': 'text/plain' }
     let body = isJSON ? JSON.stringify(props.body) : props.body || 'Not Found'
+    let status = body === 'Not Found' ? 404 : (props.status || 200)
 
     if (isJSON) headers['Content-Type'] = 'application/json'
 
@@ -61,9 +60,9 @@ module.exports = function soular (middleware, req, res) {
 
   const addMiddleware = mware => middleware.push(mware)
 
-  const hooks = process.env.NODE_ENV !== 'production'
+  const hooks = env => (process.env.NODE_ENV === 'production' ? false : env !== 'production')
     ? { ctx, addMiddleware }
-    : () => { throw new Error('Cannot access hooks in production!') }
+    : (() => { throw new Error('Cannot access hooks in production!') })()
 
   const reduce = (init) =>
     Promise.all(middleware.map(m => m(ctx)))
@@ -85,3 +84,7 @@ module.exports.defaults = [
   require('./lib/urlParser'),
   require('./lib/bodyParser')
 ]
+
+const route = require('./lib/route')
+module.exports.GET = route.GET
+module.exports.POST = route.POST
