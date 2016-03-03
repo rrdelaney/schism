@@ -1,0 +1,1 @@
+# Soular :sunny: :earth_americas: :crescent_moon: [![Build Status](https://travis-ci.org/rrdelaney/soular.svg?branch=master)](https://travis-ci.org/rrdelaney/soular) [![Coverage Status](https://coveralls.io/repos/github/rrdelaney/soular/badge.svg?branch=master)](https://coveralls.io/github/rrdelaney/soular?branch=master)
