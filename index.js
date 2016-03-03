@@ -7,8 +7,8 @@ function deepMerge (A, B) {
   return Object.keys(B).reduce((prev, key) => {
     return typeof B[key] === 'object' && B[key] !== null
       ? Object.assign(prev, {
-          [key]: Object.assign({}, prev[key], B[key])
-        })
+        [key]: Object.assign({}, prev[key], B[key])
+      })
       : Object.assign({}, prev, { [key]: B[key] })
   }, Object.assign({}, A))
 }
@@ -17,7 +17,7 @@ function mapToRes (res) {
   return props => {
     let isJSON = typeof props.body === 'object'
     let status = props.status || 200
-    let headers = res.headers || { 'Content-Type': 'text/plain '}
+    let headers = res.headers || { 'Content-Type': 'text/plain' }
     let body = isJSON ? JSON.stringify(props.body) : props.body || 'Not Found'
 
     if (isJSON) headers['Content-Type'] = 'application/json'
@@ -55,10 +55,7 @@ function createState () {
 }
 
 module.exports = function soular (middleware, req, res) {
-  if (!middleware) middleware = [
-    require('./lib/urlParser'),
-    require('./lib/bodyParser')
-  ]
+  if (!middleware) middleware = []
 
   const ctx = { req, res, state: createState() }
 
@@ -66,7 +63,7 @@ module.exports = function soular (middleware, req, res) {
 
   const hooks = process.env.NODE_ENV !== 'production'
     ? { ctx, addMiddleware }
-    : (() => { throw new Error('Cannot access hooks in production!') })
+    : () => { throw new Error('Cannot access hooks in production!') }
 
   const reduce = (init) =>
     Promise.all(middleware.map(m => m(ctx)))
@@ -83,3 +80,8 @@ module.exports = function soular (middleware, req, res) {
 
   return { hooks, reduce, use, bind, listen }
 }
+
+module.exports.defaults = [
+  require('./lib/urlParser'),
+  require('./lib/bodyParser')
+]
