@@ -54,6 +54,7 @@ function createState () {
 }
 
 module.exports = function soular (middleware, req, res) {
+  if (middleware === '☼' || middleware === '*') middleware = soular.defaults
   if (!middleware) middleware = []
 
   const ctx = { req, res, state: createState() }

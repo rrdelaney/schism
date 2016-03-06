@@ -286,3 +286,25 @@ test('cors should set header', t => {
     .expect('pong')
     .expect('Access-Control-Allow-Origin', '*')
 })
+
+test('* should be defaults', t => {
+  const app = soular('*')
+    .use(async ({ state }) => await state.get('body'))
+
+  return request(app.bind)
+    .post('/')
+    .send('this is plaintext')
+    .expect(200)
+    .expect('this is plaintext')
+})
+
+test('☼ should be defaults', t => {
+  const app = soular('☼')
+    .use(async ({ state }) => await state.get('body'))
+
+  return request(app.bind)
+    .post('/')
+    .send('this is plaintext')
+    .expect(200)
+    .expect('this is plaintext')
+})
