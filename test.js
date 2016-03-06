@@ -3,6 +3,8 @@ import http from 'http'
 import delay from 'delay'
 import request from 'supertest-as-promised'
 import soular from './index'
+import cors from './lib/cors'
+import ping from './lib/ping'
 
 test('app should reduce', async t => {
   const res = await soular([
@@ -251,4 +253,25 @@ test('router should parse route variables', t => {
     .get('/path/100')
     .expect(200)
     .expect('100')
+})
+
+test('ping should return pong', t => {
+  const app = soular(soular.defaults)
+    .use(ping)
+  
+  return request(app.bind)
+    .get('/ping')
+    .expect(200)
+    .expect('pong')
+})
+
+test('cors should set header', t => {
+  const app = soular(soular.defaults)
+    .use([ping, cors])
+    
+  return request(app.bind)
+    .get('/ping')
+    .expect(200)
+    .expect('pong')
+    .expect('Access-Control-Allow-Origin', '*')
 })
