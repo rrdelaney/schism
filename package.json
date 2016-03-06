@@ -4,7 +4,7 @@
   "description": "A next-gen web server",
   "main": "index.js",
   "scripts": {
-    "test": "standard | snazzy && nyc ava",
+    "test": "standard | snazzy && nyc ava -v",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
