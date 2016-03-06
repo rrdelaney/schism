@@ -2,7 +2,7 @@
   "name": "soular",
   "version": "0.0.0",
   "description": "A next-gen web server",
-  "main": "index.js",
+  "main": "soular.js",
   "scripts": {
     "test": "standard | snazzy && nyc ava -v",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
@@ -28,7 +28,8 @@
     "snazzy": "^3.0.0",
     "standard": "^5.4.1",
     "supertest": "^1.2.0",
-    "supertest-as-promised": "^3.0.0"
+    "supertest-as-promised": "^3.0.0",
+    "temp-write": "^2.1.0"
   },
   "standard": {
     "ignore": [

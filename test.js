@@ -1,10 +1,14 @@
 import test from 'ava'
 import http from 'http'
 import delay from 'delay'
+import { dirname } from 'path'
 import request from 'supertest-as-promised'
-import soular, { GET, POST, defaults } from './index'
+import tempWrite from 'temp-write'
+import soular, { GET, POST, defaults } from './soular'
 import cors from './lib/cors'
 import ping from './lib/ping'
+import sendFile from './lib/sendFile'
+import statik from './lib/static'
 
 test('app should reduce', async t => {
   const res = await soular([
@@ -269,7 +273,7 @@ test('router should parse route variables', t => {
 test('ping should return pong', t => {
   const app = soular(defaults)
     .use(ping)
-  
+
   return request(app.bind)
     .get('/ping')
     .expect(200)
@@ -279,7 +283,7 @@ test('ping should return pong', t => {
 test('cors should set header', t => {
   const app = soular(defaults)
     .use([ping, cors])
-    
+
   return request(app.bind)
     .get('/ping')
     .expect(200)
@@ -307,4 +311,29 @@ test('☼ should be defaults', t => {
     .send('this is plaintext')
     .expect(200)
     .expect('this is plaintext')
+})
+
+test('sendFile should send a file', t => {
+  const fpath = tempWrite.sync('test!!!', 'test.txt')
+
+  const app = soular([_ => sendFile(fpath)])
+
+  return request(app.bind)
+    .get('/')
+    .expect(200)
+    .expect('Content-Type', 'text/plain')
+    .expect('test!!!')
+})
+
+test('static should serve a directory', t => {
+  const fpath = tempWrite.sync('test!!!', 'test/test.txt')
+  const dir = dirname(fpath)
+
+  const app = soular([statik('/static', dir)])
+
+  return request(app.bind)
+    .get('/static/test.txt')
+    .expect(200)
+    .expect('Content-Type', 'text/plain')
+    .expect('test!!!')
 })
