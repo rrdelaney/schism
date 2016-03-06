@@ -2,7 +2,7 @@ import test from 'ava'
 import http from 'http'
 import delay from 'delay'
 import request from 'supertest-as-promised'
-import soular from './index'
+import soular, { GET, POST, defaults } from './index'
 import cors from './lib/cors'
 import ping from './lib/ping'
 
@@ -148,7 +148,7 @@ test('::listen should provide an http server', t => {
 })
 
 test('bodyParser should parse a plaintext body', t => {
-  const app = soular(soular.defaults)
+  const app = soular(defaults)
     .use(async ({ state }) => await state.get('body'))
 
   return request(app.bind)
@@ -159,7 +159,7 @@ test('bodyParser should parse a plaintext body', t => {
 })
 
 test('bodyParser should parse a JSON body', t => {
-  const app = soular(soular.defaults)
+  const app = soular(defaults)
     .use(async ({ state }) => ({ body: await state.get('body') }))
 
   return request(app.bind)
@@ -180,7 +180,7 @@ test('urlParser should parse get params', t => {
 })
 
 test('urlParser should parse path', t => {
-  const app = soular(soular.defaults)
+  const app = soular(defaults)
     .use(async ({ state }) => ({ body: await state.get('path') }))
 
   return request(app.bind)
@@ -215,8 +215,8 @@ test('hooks.addMiddleware should add middleware mutably', t => {
 })
 
 test('router should allow on correct GET route', t => {
-  const app = soular(soular.defaults)
-    .use(soular.GET('/path')(_ => 'body!!!'))
+  const app = soular(defaults)
+    .use(GET('/path')(_ => 'body!!!'))
 
   return request(app.bind)
     .get('/path')
@@ -225,8 +225,8 @@ test('router should allow on correct GET route', t => {
 })
 
 test('router should allow on correct POST route', t => {
-  const app = soular(soular.defaults)
-    .use(soular.POST('/path')(_ => 'body!!!'))
+  const app = soular(defaults)
+    .use(POST('/path')(_ => 'body!!!'))
 
   return request(app.bind)
     .post('/path')
@@ -235,8 +235,8 @@ test('router should allow on correct POST route', t => {
 })
 
 test('router should 404 on unmatched route', t => {
-  const app = soular(soular.defaults)
-    .use(soular.GET('/path')(_ => 'body!!!'))
+  const app = soular(defaults)
+    .use(GET('/path')(_ => 'body!!!'))
 
   return request(app.bind)
     .get('/nope')
@@ -244,8 +244,8 @@ test('router should 404 on unmatched route', t => {
 })
 
 test('router should 404 on unmatched method', t => {
-  const app = soular(soular.defaults)
-    .use(soular.GET('/path')(_ => 'body!!!'))
+  const app = soular(defaults)
+    .use(GET('/path')(_ => 'body!!!'))
 
   return request(app.bind)
     .post('/path')
@@ -253,8 +253,8 @@ test('router should 404 on unmatched method', t => {
 })
 
 test('router should parse route variables', t => {
-  const app = soular(soular.defaults)
-    .use(soular.GET('/path/:id')(async ({ state }) => {
+  const app = soular(defaults)
+    .use(GET('/path/:id')(async ({ state }) => {
       let { id } = await state.get('params')
 
       return id
@@ -267,7 +267,7 @@ test('router should parse route variables', t => {
 })
 
 test('ping should return pong', t => {
-  const app = soular(soular.defaults)
+  const app = soular(defaults)
     .use(ping)
   
   return request(app.bind)
@@ -277,7 +277,7 @@ test('ping should return pong', t => {
 })
 
 test('cors should set header', t => {
-  const app = soular(soular.defaults)
+  const app = soular(defaults)
     .use([ping, cors])
     
   return request(app.bind)

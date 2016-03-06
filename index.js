@@ -53,7 +53,7 @@ function createState () {
   }
 }
 
-module.exports = function soular (middleware, req, res) {
+module.exports = exports.default = function soular (middleware, req, res) {
   if (middleware === '☼' || middleware === '*') middleware = soular.defaults
   if (!middleware) middleware = []
 
