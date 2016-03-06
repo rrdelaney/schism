@@ -21,9 +21,20 @@ test('empty app should reduce to empty object', async t => {
   t.same(res, {})
 })
 
-test('::use should also apply middleware', async t => {
+test('::use should apply middleware', async t => {
   const res = await soular([ _ => ({ x: true }) ])
     .use(_ => ({ y: true }))
+    .reduce()
+
+  t.same(res, { x: true, y: true })
+})
+
+test('::use should apply an array middleware', async t => {
+  const res = await soular()
+    .use([
+      _ => ({ y: true }),
+      _ => ({ x: true })
+    ])
     .reduce()
 
   t.same(res, { x: true, y: true })
