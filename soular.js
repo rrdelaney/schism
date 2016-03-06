@@ -26,9 +26,9 @@ function mapToRes (res) {
   }
 }
 
-function createState () {
+function createState (init) {
   return {
-    __state: {},
+    __state: init || {},
 
     listeners: {},
 
@@ -53,11 +53,11 @@ function createState () {
   }
 }
 
-module.exports = exports.default = function soular (middleware, req, res) {
+module.exports = exports.default = function soular (middleware, initState, req, res) {
   if (middleware === '☼' || middleware === '*') middleware = soular.defaults
   if (!middleware) middleware = []
 
-  const ctx = { req, res, state: createState() }
+  const ctx = { req, res, state: createState(initState) }
 
   const addMiddleware = mware => middleware.push(mware)
 
@@ -72,7 +72,7 @@ module.exports = exports.default = function soular (middleware, req, res) {
   const use = mware => soular(middleware.concat(mware))
 
   const bind = (_req, _res) =>
-    soular(middleware, _req, _res)
+    soular(middleware, initState, _req, _res)
       .reduce()
       .then(mapToRes(_res))
 

@@ -9,6 +9,7 @@ import cors from './lib/cors'
 import ping from './lib/ping'
 import sendFile from './lib/sendFile'
 import statik from './lib/static'
+import proxy from './lib/proxy'
 
 test('app should reduce', async t => {
   const res = await soular([
@@ -129,6 +130,18 @@ test('ctx.state should allow multiple listeners', async t => {
 
   t.is(x, true)
   t.is(y, true)
+})
+
+test('ctx.state should have a default option', async t => {
+  const getState = async ({ state }) => {
+    const x = await state.get('x')
+    return { x }
+  }
+
+  const { x } = await soular([getState], { x: true })
+    .reduce()
+
+  t.is(x, true)
 })
 
 test('::bind should provide a handler for an http server', t => {
@@ -336,4 +349,39 @@ test('static should serve a directory', t => {
     .expect(200)
     .expect('Content-Type', 'text/plain')
     .expect('test!!!')
+})
+
+test('proxy should forward requests', t => {
+  const proxiedApp = soular('*')
+    .use(_ => 'test!!!')
+    .listen(12345)
+
+  const app = soular([proxy('http://localhost:12345')], { 'proxy?': true })
+
+  return request(app.bind)
+    .get('/')
+    .expect(200)
+    .expect('test!!!')
+})
+
+test('proxy should only not handled requests', t => {
+  const proxiedApp = soular('*').use(ping).listen(12346)
+
+  const app = soular('*')
+    .use(GET('/ping')(proxy('http://localhost:12346')))
+    .use(GET('/test')(_ => 'test!!!'))
+
+  const server = app.listen(12347)
+
+  const req1 = request(server)
+    .get('/test')
+    .expect(200)
+    .expect('test!!!')
+
+  const req2 = request(server)
+    .get('/ping')
+    .expect(200)
+    .expect('pong')
+
+  return Promise.all([req1, req2])
 })
