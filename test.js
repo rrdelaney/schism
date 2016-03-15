@@ -131,6 +131,38 @@ test('ctx.state should allow multiple listeners', async t => {
   t.is(y, true)
 })
 
+test('should be able to catch with ::catch', async t => {
+  const app = soular()
+    .use(() => Promise.reject('err'))
+    .catch(err => err)
+
+  let err = await app.reduce()
+
+  t.is(err, 'err')
+})
+
+test('should catch throws', async t => {
+  const app = soular()
+    .use(() => {
+      throw 'err'
+    })
+    .catch(err => err)
+
+  let err = await app.reduce()
+
+  t.is(err, 'err')
+})
+
+test('should catch throws from async functions', async t => {
+  const app = soular()
+    .use(async () => { throw 'err' })
+    .catch(err => err)
+
+  let err = await app.reduce()
+
+  t.is(err, 'err')
+})
+
 test('::bind should provide a handler for an http server', t => {
   const app = soular([ctx => ctx.req.url])
 
