@@ -1,5 +1,20 @@
 # Soular :sunny: :earth_americas: :crescent_moon: [![Build Status](https://travis-ci.org/rrdelaney/soular.svg?branch=master)](https://travis-ci.org/rrdelaney/soular) [![Coverage Status](https://coveralls.io/repos/github/rrdelaney/soular/badge.svg?branch=master)](https://coveralls.io/github/rrdelaney/soular?branch=master)
 
+# What is it?
+* Web server library
+* Based on promises and a single state atom to handle concurrency
+
+# Why use it?
+* Small, easy to use (<100 LOC)
+* 100% test coverage
+
+# How does it work?
+`Promise.all(middleware).then(mapResultToHttpResponse).catch(ErrorHandler)`
+
+All middleware is run at the same time. Unused middleware should short circuit.
+Running middleware relies on the `ctx.state` variable to communicate with other
+middleware.
+
 ## Basic Example
 
 ```js
