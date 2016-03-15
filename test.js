@@ -131,18 +131,6 @@ test('ctx.state should allow multiple listeners', async t => {
   t.is(y, true)
 })
 
-test('ctx.state should have a default option', async t => {
-  const getState = async ({ state }) => {
-    const x = await state.get('x')
-    return { x }
-  }
-
-  const { x } = await soular([getState], { x: true })
-    .reduce()
-
-  t.is(x, true)
-})
-
 test('::bind should provide a handler for an http server', t => {
   const app = soular([ctx => ctx.req.url])
 

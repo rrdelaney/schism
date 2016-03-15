@@ -26,9 +26,9 @@ function mapToRes (res) {
   }
 }
 
-function createState (init) {
+function createState () {
   return {
-    __state: init || {},
+    __state: {},
 
     listeners: {},
 
@@ -53,11 +53,11 @@ function createState (init) {
   }
 }
 
-module.exports = exports.default = function soular (middleware, initState, req, res) {
+module.exports = exports.default = function soular (middleware, req, res) {
   if (middleware === '☼' || middleware === '*') middleware = soular.defaults
   if (!middleware) middleware = []
 
-  const ctx = { req, res, state: createState(initState) }
+  const ctx = { req, res, state: createState() }
 
   const addMiddleware = mware => middleware.push(mware)
 
@@ -65,14 +65,14 @@ module.exports = exports.default = function soular (middleware, initState, req, 
     ? { ctx, addMiddleware }
     : (() => { throw new Error('Cannot access hooks in production!') })()
 
-  const reduce = (init) =>
+  const reduce = () =>
     Promise.all(middleware.map(m => m(ctx)))
-      .then(_ => _.reduce(deepMerge, init || {}))
+      .then(_ => _.reduce(deepMerge, {}))
 
   const use = mware => soular(middleware.concat(mware))
 
   const bind = (_req, _res) =>
-    soular(middleware, initState, _req, _res)
+    soular(middleware, _req, _res)
       .reduce()
       .then(mapToRes(_res))
 
