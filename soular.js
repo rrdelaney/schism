@@ -50,49 +50,44 @@ function createState () {
   }
 }
 
-module.exports = exports.default = function soular (middleware, err, req, res) {
+module.exports = exports.default = function soular (middleware, initialState, err) {
   if (middleware === '☼' || middleware === '*') middleware = soular.defaults
   if (!middleware) middleware = []
   if (!err) err = defaultErrHandler
 
-  const ctx = { req, res, state: createState() }
+  const ctx = {}
 
   const addMiddleware = mware => middleware.push(mware)
 
-  const hooks = env => (process.env.NODE_ENV === 'production' ? false : env !== 'production')
-    ? { ctx, addMiddleware }
-    : (() => { throw new Error('Cannot access hooks in production!') })()
+  const hooks = { createState, addMiddleware, ctx }
 
-  const reduce = (init) => {
+  const reduce = init => {
+    let local = Object.assign(ctx)
+    local = Object.assign(local, init, { state: createState() })
+
     try {
-      return Promise.all(middleware.map(m => m(ctx)))
-        .then(_ => _.reduce(deepMerge, init || {}))
-        .catch(e => err(e, req, res))
+      return Promise.all(middleware.map(m => m(local)))
+        .then(_ => _.reduce(deepMerge, {}))
+        .catch(e => err(e, local))
     } catch (e) {
       return Promise.reject(e)
-        .catch(e => err(e, req, res))
+        .catch(e => err(e, local))
     }
   }
 
-  const use = mware => soular(middleware.concat(mware), err)
+  const use = mware => soular(middleware.concat(mware), initialState, err)
 
-  const _catch = handler => soular(middleware, handler)
+  const plugin = p => p.bind({ hooks, reduce, use, plugin, bind, listen, 'catch': _catch })
 
-  const bind = (_req, _res) =>
-    soular(middleware, err, _req, _res)
-      .reduce()
-      .then(mapToRes(_res))
+  const _catch = handler => soular(middleware, initialState, handler)
+
+  const bind = (req, res) => reduce({ req, res }).then(mapToRes(res))
 
   const listen = port => require('http').createServer(bind).listen(port || 3000, '0.0.0.0')
 
-  return { hooks, reduce, use, bind, listen, 'catch': _catch }
+  return { hooks, reduce, use, plugin, bind, listen, 'catch': _catch }
 }
 
-module.exports.defaults = [
-  require('./lib/urlParser'),
-  require('./lib/bodyParser')
-]
-
-const route = require('./lib/route')
-module.exports.GET = route.GET
-module.exports.POST = route.POST
+module.exports.defaults = [require('./lib/urlParser'), require('./lib/bodyParser')]
+module.exports.GET = require('./lib/route').GET
+module.exports.POST = require('./lib/route').POST

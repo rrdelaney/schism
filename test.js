@@ -183,6 +183,65 @@ test('::listen should provide an http server', t => {
     .expect('/xyz')
 })
 
+test('ctx.state should be fresh on each request', t => {
+  let x = 1
+
+  const setState = ({ state }) => {
+    state.set('x', x.toString())
+    x += 1
+  }
+
+  const getState = async ({ state }) => {
+    const x = await state.get('x')
+
+    return { body: x }
+  }
+
+  const app = soular('*').use([setState, getState])
+
+  const req1 = request(app.bind)
+    .get('/')
+    .expect('1')
+
+  const req2 = request(app.bind)
+    .get('/')
+    .expect('2')
+
+  return Promise.all([req1, req2])
+})
+
+test('::plugin should expose hooks', async t => {
+  const p = function () {
+    this.hooks.ctx.x = 10
+
+    return this
+  }
+
+  const m = ({ x }) => ({ x })
+
+  const { x } = await soular()
+    .use(m)
+    .plugin(p)()
+    .reduce()
+
+  t.is(x, 10)
+})
+
+test('hooks.addMiddleware should add middleware mutably', t => {
+  const p = function () {
+    this.hooks.addMiddleware(_ => 'body!!!')
+
+    return this
+  }
+
+  const app = soular()
+    .plugin(p)()
+
+  return request(app.bind)
+    .get('/')
+    .expect('body!!!')
+})
+
 test('bodyParser should parse a plaintext body', t => {
   const app = soular(defaults)
     .use(async ({ state }) => await state.get('body'))
@@ -232,22 +291,6 @@ test('no body should 404', t => {
     .get('/')
     .expect(404)
     .expect('Not Found')
-})
-
-test('hooks should not accessable in production', t => {
-  const app = soular()
-
-  t.throws(() => app.hooks('production'))
-})
-
-test('hooks.addMiddleware should add middleware mutably', t => {
-  const app = soular()
-
-  app.hooks().addMiddleware(_ => 'body!!!')
-
-  return request(app.bind)
-    .get('/')
-    .expect('body!!!')
 })
 
 test('router should allow on correct GET route', t => {
