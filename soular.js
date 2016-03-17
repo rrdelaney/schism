@@ -24,7 +24,7 @@ function mapToRes (res) {
   }
 }
 
-const defaultErrHandler = err => ({ status: 500, body: 'Internal Server Error' })
+const defaultErrHandler = () => ({ status: 500, body: 'Internal Server Error' })
 
 function createState () {
   return {
@@ -37,6 +37,7 @@ function createState () {
         if (!this.listeners[name]) this.listeners[name] = []
 
         this.listeners[name].push(resolve)
+        if (this.onGet) this.onGet(name, this)
       })
     },
     set (name, value) {

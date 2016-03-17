@@ -9,6 +9,7 @@ import cors from './lib/cors'
 import ping from './lib/ping'
 import sendFile from './lib/sendFile'
 import statik from './lib/static'
+import { system, register } from './lib/system'
 
 test('app should reduce', async t => {
   const res = await soular([
