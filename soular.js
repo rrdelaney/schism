@@ -56,7 +56,7 @@ module.exports = exports.default = function soular (middleware, initialState, er
   if (!middleware) middleware = []
   if (!err) err = defaultErrHandler
 
-  const ctx = {}
+  const ctx = { debug: false }
 
   const addMiddleware = mware => middleware.push(mware)
 
@@ -65,15 +65,16 @@ module.exports = exports.default = function soular (middleware, initialState, er
   const reduce = init => {
     let local = Object.assign(ctx)
     local = Object.assign(local, init, { state: createState() })
+    let result
 
     try {
-      return Promise.all(middleware.map(m => m(local)))
+      result = Promise.all(middleware.map(m => m(local)))
         .then(_ => _.reduce(deepMerge, {}))
-        .catch(e => err(e, local))
     } catch (e) {
-      return Promise.reject(e)
-        .catch(e => err(e, local))
+      result = Promise.reject(e)
     }
+
+    return result.catch(e => { console.error(e.stack); return err(e, local) })
   }
 
   const use = mware => soular(middleware.concat(mware), initialState, err)
@@ -92,3 +93,7 @@ module.exports = exports.default = function soular (middleware, initialState, er
 module.exports.defaults = [require('./lib/urlParser'), require('./lib/bodyParser')]
 module.exports.GET = require('./lib/route').GET
 module.exports.POST = require('./lib/route').POST
+module.exports.ping = require('./lib/ping')
+module.exports.debug = require('./lib/debug')
+module.exports.system = require('./lib/system').system
+module.exports.system.register = require('./lib/system').register
