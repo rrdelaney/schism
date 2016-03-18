@@ -1,6 +1,6 @@
 {
   "name": "soular",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A next-gen web server",
   "main": "soular.js",
   "scripts": {
