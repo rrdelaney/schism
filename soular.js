@@ -95,5 +95,3 @@ module.exports.GET = require('./lib/route').GET
 module.exports.POST = require('./lib/route').POST
 module.exports.ping = require('./lib/ping')
 module.exports.debug = require('./lib/debug')
-module.exports.system = require('./lib/system').system
-module.exports.system.register = require('./lib/system').register
