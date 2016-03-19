@@ -13,11 +13,11 @@ function deepMerge (A, B) {
 function mapToRes (res) {
   return props => {
     let isJSON = typeof props.body === 'object'
-    let headers = props.headers || { 'Content-Type': 'text/plain' }
+    let headers = props.headers || { 'Content-Type': 'text/html' }
     let body = isJSON ? JSON.stringify(props.body) : props.body || 'Not Found'
     let status = body === 'Not Found' ? 404 : props.status || 200
 
-    headers['Content-Type'] = isJSON ? 'application/json' : 'text/html'
+    if (isJSON) headers['Content-Type'] = 'application/json'
 
     res.writeHead(status, headers)
     res.end(body)
