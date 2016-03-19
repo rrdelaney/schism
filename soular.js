@@ -90,10 +90,4 @@ module.exports = exports.default = function soular (middleware, initialState, er
   return { hooks, reduce, use, plugin, bind, listen, 'catch': _catch }
 }
 
-module.exports.defaults = [require('./lib/urlParser'), require('./lib/bodyParser')]
-module.exports.GET = require('./lib/route').GET
-module.exports.POST = require('./lib/route').POST
-module.exports.ping = require('./lib/ping')
-module.exports.debug = require('./lib/debug')
-module.exports.system = require('./lib/system').system
-module.exports.system.register = require('./lib/system').register
+module.exports.defaults = [require('./urlParser'), require('./bodyParser')]
