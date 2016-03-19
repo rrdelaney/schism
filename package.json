@@ -1,6 +1,6 @@
 {
   "name": "soular",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A next-gen web server",
   "main": "soular.js",
   "scripts": {
@@ -27,6 +27,9 @@
     "fech": "^1.0.0",
     "http-proxy": "^1.13.2",
     "nyc": "^5.6.0",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "react-router": "^2.0.1",
     "snazzy": "^3.0.0",
     "standard": "^5.4.1",
     "supertest": "^1.2.0",

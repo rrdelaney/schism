@@ -17,7 +17,7 @@ function mapToRes (res) {
     let body = isJSON ? JSON.stringify(props.body) : props.body || 'Not Found'
     let status = body === 'Not Found' ? 404 : props.status || 200
 
-    if (isJSON) headers['Content-Type'] = 'application/json'
+    headers['Content-Type'] = isJSON ? 'application/json' : 'text/html'
 
     res.writeHead(status, headers)
     res.end(body)

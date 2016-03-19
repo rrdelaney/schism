@@ -7,6 +7,8 @@
 # Why use it?
 * Small, easy to use (<100 LOC)
 * 100% test coverage
+* Service Discovery
+* React Router integration
 
 # How does it work?
 `Promise.all(middleware).then(mapResultToHttpResponse).catch(ErrorHandler)`
