@@ -18,7 +18,10 @@ module.exports = function router (routes, body) {
           }
         })
       } else if (renderProps) {
-        resolve(body(renderToString(React.createElement(RouterContext, renderProps))))
+        resolve(body
+          ? body(React.createElement(RouterContext, renderProps))
+          : renderToString(React.createElement(RouterContext, renderProps))
+        )
       } else {
         resolve()
       }
