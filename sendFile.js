@@ -5,7 +5,7 @@ let fs = require('fs')
 module.exports = function (fname) {
   return new Promise(resolve => {
     fs.stat(fname, (err, stat) => {
-      if (err) resolve()
+      if (err) return resolve()
 
       let body = []
 
