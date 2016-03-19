@@ -5,7 +5,7 @@ const renderToString = require('react-dom/server').renderToString
 const match = require('react-router').match
 const RouterContext = require('react-router').RouterContext
 
-module.exports = function router (routes) {
+module.exports = function router (routes, body) {
   return ctx => new Promise((resolve, reject) => {
     match({ routes, location: ctx.req.url }, (error, redirectLocation, renderProps) => {
       if (error) {
@@ -18,7 +18,7 @@ module.exports = function router (routes) {
           }
         })
       } else if (renderProps) {
-        resolve(renderToString(React.createElement(RouterContext, renderProps)))
+        resolve(body(renderToString(React.createElement(RouterContext, renderProps))))
       } else {
         resolve()
       }
