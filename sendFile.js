@@ -6,6 +6,7 @@ module.exports = function (fname) {
   return new Promise(resolve => {
     fs.stat(fname, (err, stat) => {
       if (err) return resolve()
+      if (stat.isDirectory()) return resolve()
 
       let body = []
 
