@@ -2,6 +2,8 @@
 
 function deepMerge (A, B) {
   if (typeof B !== 'object') return Object.assign({}, A, { body: B || A.body })
+  if (A.$force) return A
+  if (B.$force) return B
 
   return Object.keys(B).reduce((prev, key) => {
     return typeof B[key] === 'object' && B[key] !== null

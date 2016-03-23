@@ -414,3 +414,12 @@ test('static should serve a directory', t => {
     .expect('Content-Type', 'text/plain')
     .expect('test!!!')
 })
+
+test('setting .$force should override', async t => {
+  const m1 = ctx => ({ x: 1, $force: true })
+  const m2 = ctx => ({ x: 10 })
+
+  let { x } = await soular([m1, m2]).reduce()
+
+  t.is(x, 1)
+})
