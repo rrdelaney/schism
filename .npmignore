@@ -1,3 +1,4 @@
 test/
 .travis.yml
 *.png
+.nyc_output/

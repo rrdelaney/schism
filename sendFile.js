@@ -2,24 +2,16 @@
 
 let fs = require('fs')
 
-module.exports = function (fname) {
+module.exports = function (fname, res) {
   return new Promise(resolve => {
     fs.stat(fname, (err, stat) => {
       if (err) return resolve()
       if (stat.isDirectory()) return resolve()
 
-      let body = []
-
+      res.setHeader('Content-Type', getMIME(fname.split('.').pop()))
       fs.createReadStream(fname)
-        .on('data', chunk => body.push(chunk))
-        .on('end', () => resolve({
-          body: body.join(''),
-
-          headers: {
-            'Content-Type': getMIME(fname.split('.').pop())
-          }
-        })
-      )
+        .pipe(res)
+        .on('end', resolve)
     })
   })
 }

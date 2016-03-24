@@ -393,7 +393,7 @@ test('☼ should be defaults', t => {
 test('sendFile should send a file', t => {
   const fpath = tempWrite.sync('test!!!', 'test.txt')
 
-  const app = soular([_ => sendFile(fpath)])
+  const app = soular([ctx => sendFile(fpath, ctx.res)])
 
   return request(app.bind)
     .get('/')
