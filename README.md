@@ -45,7 +45,8 @@ soular('*')
 ## Routing
 
 ```js
-import soular, { GET } from 'soular'
+import soular from 'soular'
+import { GET } from 'soular/route'
 
 const getDB = async ctx => {
   const db = await DBClient.getConnention()
