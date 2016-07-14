@@ -62,10 +62,6 @@ module.exports = exports.default = function soular (middleware, initialState, er
 
   const ctx = { debug: false, state: createState(initialState) }
 
-  const addMiddleware = mware => middleware.push(mware)
-
-  const hooks = { createState, addMiddleware, ctx }
-
   const reduce = init => {
     let local = Object.assign({}, ctx, init)
     let result
@@ -82,15 +78,13 @@ module.exports = exports.default = function soular (middleware, initialState, er
 
   const use = mware => soular(middleware.concat(mware), initialState, err)
 
-  const plugin = p => p.bind({ hooks, reduce, use, plugin, bind, listen, 'catch': _catch })
-
   const _catch = handler => soular(middleware, initialState, handler)
 
   const bind = (req, res) => reduce({ req, res }).then(mapToRes(res))
 
   const listen = port => require('http').createServer(bind).listen(port || 3000, '0.0.0.0')
 
-  return { hooks, reduce, use, plugin, bind, listen, 'catch': _catch }
+  return { reduce, use, bind, listen, 'catch': _catch, hooks: { ctx } }
 }
 
 module.exports.defaults = [require('./urlParser'), require('./bodyParser')]
