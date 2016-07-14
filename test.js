@@ -10,6 +10,7 @@ import cors from './cors'
 import ping from './ping'
 import sendFile from './sendFile'
 import statik from './static'
+import fn from './fn'
 
 test('app should reduce', async t => {
   const res = await soular([
@@ -211,38 +212,6 @@ test('ctx.state should be fresh on each request', t => {
   return Promise.all([req1, req2])
 })
 
-test('::plugin should expose hooks', async t => {
-  const p = function () {
-    this.hooks.ctx.x = 10
-
-    return this
-  }
-
-  const m = ({ x }) => ({ x })
-
-  const { x } = await soular()
-    .use(m)
-    .plugin(p)()
-    .reduce()
-
-  t.is(x, 10)
-})
-
-test('hooks.addMiddleware should add middleware mutably', t => {
-  const p = function () {
-    this.hooks.addMiddleware(_ => 'body!!!')
-
-    return this
-  }
-
-  const app = soular()
-    .plugin(p)()
-
-  return request(app.bind)
-    .get('/')
-    .expect('body!!!')
-})
-
 test('bodyParser should parse a plaintext body', t => {
   const app = soular(defaults)
     .use(async ({ state }) => await state.body)
@@ -421,4 +390,15 @@ test('setting .$force should override', async t => {
   let { x } = await soular([m1, m2]).reduce()
 
   t.is(x, 1)
+})
+
+test('fn should route properly', async t => {
+  const m1 = fn('GET', '/ping')(_ => 'pong')
+
+  const app = soular(defaults).use(m1)
+
+  return request(app.bind)
+    .get('/ping')
+    .expect(200)
+    .expect('pong')
 })
