@@ -10,7 +10,6 @@ import cors from './cors'
 import ping from './ping'
 import sendFile from './sendFile'
 import statik from './static'
-import { system, register } from './system'
 
 test('app should reduce', async t => {
   const res = await soular([
@@ -95,13 +94,13 @@ test('middleware can be async functions', async t => {
   t.is(body, 'body!!!')
 })
 
-test('ctx.state should sync things', async t => {
+test('state should sync things', async t => {
   const setState = ({ state }) => {
-    state.set('x', true)
+    state.x = true
   }
 
   const getState = async ({ state }) => {
-    const x = await state.get('x')
+    const x = await state.x
     return { x }
   }
 
@@ -111,18 +110,18 @@ test('ctx.state should sync things', async t => {
   t.is(x, true)
 })
 
-test('ctx.state should allow multiple listeners', async t => {
+test('state should allow multiple listeners', async t => {
   const setState = ({ state }) => {
-    state.set('x', true)
+    state.x = true
   }
 
   const getState1 = async ({ state }) => {
-    const x = await state.get('x')
+    const x = await state.x
     return { x }
   }
 
   const getState2 = async ({ state }) => {
-    const x = await state.get('x')
+    const x = await state.x
     return { y: x }
   }
 
@@ -189,12 +188,12 @@ test('ctx.state should be fresh on each request', t => {
   let x = 1
 
   const setState = ({ state }) => {
-    state.set('x', x.toString())
+    state.x = x.toString()
     x += 1
   }
 
   const getState = async ({ state }) => {
-    const x = await state.get('x')
+    const x = await state.x
 
     return { body: x }
   }
@@ -246,7 +245,7 @@ test('hooks.addMiddleware should add middleware mutably', t => {
 
 test('bodyParser should parse a plaintext body', t => {
   const app = soular(defaults)
-    .use(async ({ state }) => await state.get('body'))
+    .use(async ({ state }) => await state.body)
 
   return request(app.bind)
     .post('/')
@@ -257,7 +256,7 @@ test('bodyParser should parse a plaintext body', t => {
 
 test('bodyParser should parse a JSON body', t => {
   const app = soular(defaults)
-    .use(async ({ state }) => ({ body: await state.get('body') }))
+    .use(async ({ state }) => ({ body: await state.body }))
 
   return request(app.bind)
     .post('/')
@@ -268,7 +267,7 @@ test('bodyParser should parse a JSON body', t => {
 
 test('urlParser should parse get params', t => {
   const app = soular(soular.defaults)
-    .use(async ({ state }) => ({ body: await state.get('query') }))
+    .use(async ({ state }) => ({ body: await state.query }))
 
   return request(app.bind)
     .get('/?x=x&y=y')
@@ -278,7 +277,7 @@ test('urlParser should parse get params', t => {
 
 test('urlParser should parse path', t => {
   const app = soular(defaults)
-    .use(async ({ state }) => ({ body: await state.get('path') }))
+    .use(async ({ state }) => ({ body: await state.path }))
 
   return request(app.bind)
     .get('/x/y/z?x=x&y=y')
@@ -336,7 +335,7 @@ test('router should 404 on unmatched method', t => {
 test('router should parse route variables', t => {
   const app = soular(defaults)
     .use(GET('/path/:id')(async ({ state }) => {
-      let { id } = await state.get('params')
+      let { id } = await state.params
 
       return id
     }))
@@ -370,7 +369,7 @@ test('cors should set header', t => {
 
 test('* should be defaults', t => {
   const app = soular('*')
-    .use(async ({ state }) => await state.get('body'))
+    .use(async ({ state }) => await state.body)
 
   return request(app.bind)
     .post('/')
@@ -381,7 +380,7 @@ test('* should be defaults', t => {
 
 test('☼ should be defaults', t => {
   const app = soular('☼')
-    .use(async ({ state }) => await state.get('body'))
+    .use(async ({ state }) => await state.body)
 
   return request(app.bind)
     .post('/')

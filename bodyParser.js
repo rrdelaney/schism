@@ -10,9 +10,9 @@ module.exports = function (ctx) {
       let fullBody = Buffer.concat(body).toString()
 
       if (fullBody.startsWith('{') && fullBody.endsWith('}')) {
-        ctx.state.set('body', JSON.parse(fullBody))
+        ctx.state.body = JSON.parse(fullBody)
       } else {
-        ctx.state.set('body', fullBody)
+        ctx.state.body = fullBody
       }
 
       resolve()

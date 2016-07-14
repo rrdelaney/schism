@@ -28,29 +28,31 @@ function mapToRes (res) {
 
 const defaultErrHandler = () => ({ status: 500, body: 'Internal Server Error' })
 
-function createState () {
-  return {
-    __state: {},
-    listeners: {},
-    get (name) {
-      if (this.__state[name] !== undefined) return Promise.resolve(this.__state[name])
+function createState (init = {}) {
+  init.__listeners = []
+
+  return new Proxy(init, {
+    get: (state, name) => {
+      if (state[name] !== undefined) return Promise.resolve(state[name])
 
       return new Promise(resolve => {
-        if (!this.listeners[name]) this.listeners[name] = []
+        if (!state.__listeners[name]) state.__listeners[name] = []
 
-        this.listeners[name].push(resolve)
-        if (this.onGet) this.onGet(name, this)
+        state.__listeners[name].push(resolve)
       })
     },
-    set (name, value) {
-      this.__state[name] = value
 
-      if (this.listeners[name]) {
-        this.listeners[name].forEach(resolve => { resolve(value) })
-        this.listeners[name] = undefined
+    set: (state, name, value) => {
+      state[name] = value
+
+      if (state.__listeners[name]) {
+        state.__listeners[name].forEach(resolve => { resolve(value) })
+        state.__listeners[name] = undefined
       }
+
+      return true
     }
-  }
+  })
 }
 
 module.exports = exports.default = function soular (middleware, initialState, err) {
@@ -58,15 +60,14 @@ module.exports = exports.default = function soular (middleware, initialState, er
   if (!middleware) middleware = []
   if (!err) err = defaultErrHandler
 
-  const ctx = { debug: false }
+  const ctx = { debug: false, state: createState(initialState) }
 
   const addMiddleware = mware => middleware.push(mware)
 
   const hooks = { createState, addMiddleware, ctx }
 
   const reduce = init => {
-    let local = Object.assign(ctx)
-    local = Object.assign(local, init, { state: createState() })
+    let local = Object.assign({}, ctx, init)
     let result
 
     try {

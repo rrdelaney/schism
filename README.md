@@ -24,11 +24,11 @@ import soular from 'soular'
 
 const getDBMiddleware = async ctx => {
   let db = await DBClient.getConnention()
-  ctx.state.set('db', db)
+  ctx.state.db = db
 }
 
 const handler = async ctx => {
-  const db = await ctx.state.get('db')
+  const db = await ctx.state.db
   const users = await db.getAllUsers()
 
   return {
@@ -50,11 +50,11 @@ import { GET } from 'soular/route'
 
 const getDB = async ctx => {
   const db = await DBClient.getConnention()
-  ctx.state.set('db', db)
+  ctx.state.db = db
 }
 
 const getUsers = async ctx => {
-  const db = await ctx.state.get('db')
+  const db = await ctx.state = db
   const users = await db.getAllUsers()
 
   return {
@@ -63,7 +63,7 @@ const getUsers = async ctx => {
 }
 
 const getAdmins = async ctx => {
-  const db = await ctx.state.get('db')
+  const db = await ctx.state.db
   const admins = await db.getAdmins()
 
   return {

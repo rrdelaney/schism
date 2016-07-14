@@ -15,6 +15,6 @@ module.exports = function urlParser (ctx) {
           return prev
         }, {})
 
-  ctx.state.set('path', parsed.pathname)
-  ctx.state.set('query', params)
+  ctx.state.path = parsed.pathname
+  ctx.state.query = params
 }

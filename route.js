@@ -20,13 +20,13 @@ function resolve (path, route) {
 
 function createRoute (method) {
   return path => fn => ctx => {
-    return ctx.state.get('path')
+    return ctx.state.path
       .then(reqPath => {
         if (ctx.req.method === method) {
           let allow = resolve(path, reqPath)
 
           if (allow !== false) {
-            ctx.state.set('params', allow)
+            ctx.state.params = allow
 
             return fn(ctx)
           }
